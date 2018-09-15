@@ -86,18 +86,13 @@ int main(int argc, char ** argv) {
 		while(endflag){
 			if(isConflict(add_queen, queen_stack, board_size)){
 				// try a shift
-				if( !shift(add_queen, board_size)  ){
+				while( !shift(add_queen, board_size)  ){
 					
 					// pop queen to move again
+					add_queen = queen_stack.top();
 					queen_stack.pop();
 					--num_filled;
-					while(queen_stack.top().second >  board_size){
-						queen_stack.pop();
-						std::cout << "Popping queen at " << add_queen.first << "," << add_queen.second << "\n";
-						--num_filled;
-					}					
-					continue;					
-				} else {
+					std::cout << "Popping queen at " << add_queen.first << "," << add_queen.second << "\n";	
 
 				}
 			} else {
