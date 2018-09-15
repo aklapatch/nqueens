@@ -19,20 +19,21 @@ bool isConflict(queen t_primary, std::stack<queen> t_q_stack, unsigned int board
 	
 	while( i-- > 0){
 	
-		if(t_primary.first == queens[i].first){
-			return true;
-		} 
-		if( t_primary.second == queens[i].second ){
+		if( t_primary.second == queens[i].second || t_primary.second > board_size){
+			std::cout << "Queen at " << t_primary.first << "," << t_primary.second << " conflicts with queen at "; 
+			std::cout << queens[i].first << "," << queens[i].second << "\n";
 			return true;
 		}
-		for(int j = 0; t_primary.first - j > 0; ++j ){
-			for(int k = t_primary.second - board_size; t_primary.second + k < board_size; ++k){
-				std::cout << "j,k = " << j << "," <<  k  << "\n";
-				if ( t_primary.first - j == queens[i].first && t_primary.second + k == queens[i].second ){
 
-					return true;
-				}
-			}
+		int b = t_primary.first - t_primary.second;
+		int b2 = queens[i].first - queens[i].second;
+		int b3 = t_primary.first + (t_primary.second - board_size);
+		int b4 = queens[i].first + (queens[i].second - board_size);
+		// if they are the same, queens conflict
+		if ( b == b2 || b3 == b4 ){
+			std::cout << "Queen at " << t_primary.first << "," << t_primary.second << " conflicts with queen at "; 
+			std::cout << queens[i].first << "," << queens[i].second << "\n";
+			return true;
 		}
 	}
 	return false;
@@ -43,19 +44,11 @@ bool shift(queen& t_in, unsigned int board_size){
 	// if queen is on right edge of the board
 	if(t_in.second >= board_size){
 		
-		// if the queen is on the last open position
-		if(t_in.first >= board_size){
-			return false;
-		}
-		
-		// shift up and over to the first column
-		++t_in.first;
-		t_in.second = 1;
-		
+		return false;
 		
 	} else {
 		// move the queen to the right to the next column
-		t_in.second++;
+		++t_in.second;
 	}
 	// move succeeded
 	return true;	
@@ -89,27 +82,40 @@ int main(int argc, char ** argv) {
 		++add_queen.first;
 		add_queen.second = 1;
 		
-		while(isConflict(add_queen, queen_stack, board_size)){
-			
-			// try a shift
-			if( !shift(add_queen, board_size) ){
-				
-				// pop queen to move again
-				
-				add_queen = queen_stack.top();
-				queen_stack.pop();
-				std::cout << "Popping queen at " << add_queen.first << "," << add_queen.second << "\n";
-				--num_filled;	
-				continue;
+		bool endflag = true;
+		while(endflag){
+			if(isConflict(add_queen, queen_stack, board_size)){
+				// try a shift
+				if( !shift(add_queen, board_size)  ){
+					
+					// pop queen to move again
+					queen_stack.pop();
+					--num_filled;
+					while(queen_stack.top().second >  board_size){
+						queen_stack.pop();
+						std::cout << "Popping queen at " << add_queen.first << "," << add_queen.second << "\n";
+						--num_filled;
+					}					
+					continue;					
+				} else {
+
+				}
+			} else {
+				// throw non-conflict queen on the stack
+				std::cout << "pushing queen at " << add_queen.first << "," << add_queen.second << "\n";
+				queen_stack.push(add_queen);
+				++num_filled;
+				std::cout << "Number of queens = " << num_filled << "\n";
+				endflag = false;
 			}
-			
 		}
-		// throw non-conflict queen on the stack
-		std::cout << "pushing queen at " << add_queen.first << "," << add_queen.second << "\n";
-		queen_stack.push(add_queen);
-		++num_filled;	
-		std::cout << "Number of queens = " << num_filled << "\n";
 	}
-	
+
+	std::cout << "Final positions:\n";
+	for(int i = 0; i < board_size; ++i){
+		std::cout << queen_stack.top().first << "," << queen_stack.top().second << "\n";
+		queen_stack.pop();
+	}
+
 	return 0;
 }
