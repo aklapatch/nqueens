@@ -75,7 +75,7 @@ int main(int argc, char ** argv) {
 	unsigned int num_filled = 1;
 	
 	std::cout << "Pushing queen at 1,1\n";
-	queen_stack.push({1,1});
+	queen_stack.push(std::pair<int,int>(1,1));
 	
 	while (num_filled < board_size){
 		queen add_queen = queen_stack.top();
