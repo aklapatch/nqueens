@@ -18,21 +18,20 @@ bool isConflict(queen t_primary, std::stack<queen> t_q_stack, unsigned int board
 	}
 	
 	while( i-- > 0){
-	
+		
+		// checks if the queen is off the board or if it conflicts with queen vertically`
 		if( t_primary.second == queens[i].second || t_primary.second > board_size){
-			std::cout << "Queen at " << t_primary.first << "," << t_primary.second << " conflicts with queen at "; 
-			std::cout << queens[i].first << "," << queens[i].second << "\n";
 			return true;
 		}
 
+		// compare y intercepts for diagonal lines that the queens make
 		int b = t_primary.first - t_primary.second;
 		int b2 = queens[i].first - queens[i].second;
 		int b3 = t_primary.first + (t_primary.second - board_size);
 		int b4 = queens[i].first + (queens[i].second - board_size);
+
 		// if they are the same, queens conflict
 		if ( b == b2 || b3 == b4 ){
-			std::cout << "Queen at " << t_primary.first << "," << t_primary.second << " conflicts with queen at "; 
-			std::cout << queens[i].first << "," << queens[i].second << "\n";
 			return true;
 		}
 	}
@@ -72,12 +71,12 @@ int main(int argc, char ** argv) {
 	
 	// make first stack
 	std::stack<queen> queen_stack;
-	unsigned int num_filled = 1;
-	
+
+	// push first queen on a stack
 	std::cout << "Pushing queen at 1,1\n";
 	queen_stack.push(std::pair<int,int>(1,1));
 	
-	while (num_filled < board_size){
+	while (queen_stack.size() < board_size){
 		queen add_queen = queen_stack.top();
 		++add_queen.first;
 		add_queen.second = 1;
@@ -91,7 +90,6 @@ int main(int argc, char ** argv) {
 					// pop queen to move again
 					add_queen = queen_stack.top();
 					queen_stack.pop();
-					--num_filled;
 					std::cout << "Popping queen at " << add_queen.first << "," << add_queen.second << "\n";	
 
 				}
@@ -99,13 +97,13 @@ int main(int argc, char ** argv) {
 				// throw non-conflict queen on the stack
 				std::cout << "pushing queen at " << add_queen.first << "," << add_queen.second << "\n";
 				queen_stack.push(add_queen);
-				++num_filled;
-				std::cout << "Number of queens = " << num_filled << "\n";
+				std::cout << "Number of queens = " << queen_stack.size() << "\n";
 				endflag = false;
 			}
 		}
 	}
-
+	
+	// output solutions
 	std::cout << "Final positions:\n";
 	for(int i = 0; i < board_size; ++i){
 		std::cout << queen_stack.top().first << "," << queen_stack.top().second << "\n";
