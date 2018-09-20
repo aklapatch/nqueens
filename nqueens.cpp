@@ -3,7 +3,6 @@
 #include <cstdlib>
 #include <ctype.h>
 #include <utility>
-#include <vector>
 
 // simplify naming
 typedef std::pair<int,int> queen;
@@ -14,7 +13,7 @@ bool isConflict(std::stack<queen> t_q_stack, unsigned int board_size){
 	// set aside queen to compare
 	queen compare = t_q_stack.top();
 	t_q_stack.pop();
-	
+
 	while( !t_q_stack.empty()){
 		
 		// checks if the queen is off the board or if it conflicts with queen vertically`
@@ -41,7 +40,7 @@ bool isConflict(std::stack<queen> t_q_stack, unsigned int board_size){
 
 bool shift(queen& t_in, unsigned int board_size){
 	
-	// if queen is on right edge of the board
+	// return false if queen is on edge of the board
 	if(t_in.second >= board_size){
 		
 		return false;
@@ -82,10 +81,7 @@ int main(int argc, char ** argv) {
 		while(isConflict(queen_stack, board_size)){
 
 			// pop if member cannot be shifted
-			while( !shift(queen_stack.top(),board_size)){
-				queen test = queen_stack.top();
-				std::cout << "Popping queen at " << queen_stack.top().first << "," << queen_stack.top().second << "\n";
-				
+			while( !shift(queen_stack.top(),board_size)){			
 				queen_stack.pop();
 			} 
 		}		
@@ -96,7 +92,7 @@ int main(int argc, char ** argv) {
 	for(int i = 0; i < board_size; ++i){
 		for(int j = 1; j <= board_size; ++j){
 			
-			// output a 1 to indicate where the found solution was
+			// output a 1 to indicate where the queen was
 			if(queen_stack.top().second == j){
 				std::cout <<  " 1 ";
 			}
