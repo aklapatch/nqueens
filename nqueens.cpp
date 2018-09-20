@@ -5,35 +5,36 @@
 #include <utility>
 #include <vector>
 
+// simplify naming
 typedef std::pair<int,int> queen;
 
-bool isConflict(queen t_primary, std::stack<queen> t_q_stack, unsigned int board_size){
-	std::vector<queen> queens(t_q_stack.size());
+// checks for conflict between queens
+bool isConflict(std::stack<queen> t_q_stack, unsigned int board_size){
 	
-	//copy the stack contents to vector
-	int i=0;
-	while( !t_q_stack.empty() ){
-		queens[ i++ ] = t_q_stack.top();
-		t_q_stack.pop();
-	}
+	// set aside queen to compare
+	queen compare = t_q_stack.top();
+	t_q_stack.pop();
 	
-	while( i-- > 0){
+	while( !t_q_stack.empty()){
 		
 		// checks if the queen is off the board or if it conflicts with queen vertically`
-		if( t_primary.second == queens[i].second || t_primary.second > board_size){
+		if( compare.second == t_q_stack.top().second){
 			return true;
 		}
 
 		// compare y intercepts for diagonal lines that the queens make
-		int b = t_primary.first - t_primary.second;
-		int b2 = queens[i].first - queens[i].second;
-		int b3 = t_primary.first + (t_primary.second - board_size);
-		int b4 = queens[i].first + (queens[i].second - board_size);
+		int b = compare.first - compare.second;
+		int b2 = t_q_stack.top().first - t_q_stack.top().second;
+		int b3 = compare.first + (compare.second - board_size);
+		int b4 = t_q_stack.top().first + (t_q_stack.top().second - board_size);
 
 		// if they are the same, queens conflict
 		if ( b == b2 || b3 == b4 ){
 			return true;
 		}
+		
+		//set to check next member
+		t_q_stack.pop();
 	}
 	return false;
 }
@@ -64,49 +65,46 @@ int main(int argc, char ** argv) {
 	int board_size = std::atoi(argv[1]);
 	
 	// exit if the input is too small
-	if(board_size < 3){
-		std::cerr << "Minimum size is 3. Exiting\n";
+	if(board_size < 4 && board_size > 1){
+		std::cerr << "Sizes 2 and 3 have no solution. Exiting\n";
 		return 0;
 	}
 	
 	// make first stack
 	std::stack<queen> queen_stack;
-
-	// push first queen on a stack
-	std::cout << "Pushing queen at 1,1\n";
-	queen_stack.push(std::pair<int,int>(1,1));
 	
-	while (queen_stack.size() < board_size){
-		queen add_queen = queen_stack.top();
-		++add_queen.first;
-		add_queen.second = 1;
-		
-		bool endflag = true;
-		while(endflag){
-			if(isConflict(add_queen, queen_stack, board_size)){
-				// try a shift
-				while( !shift(add_queen, board_size)  ){
-					
-					// pop queen to move again
-					add_queen = queen_stack.top();
-					queen_stack.pop();
-					std::cout << "Popping queen at " << add_queen.first << "," << add_queen.second << "\n";	
+	while(queen_stack.size() < board_size){
 
-				}
-			} else {
-				// throw non-conflict queen on the stack
-				std::cout << "pushing queen at " << add_queen.first << "," << add_queen.second << "\n";
-				queen_stack.push(add_queen);
-				std::cout << "Number of queens = " << queen_stack.size() << "\n";
-				endflag = false;
-			}
-		}
+		// make new queen at starting position next column up
+		queen_stack.push(std::pair<int,int>(queen_stack.size() + 1, 1));
+
+		// while there is conflict
+		while(isConflict(queen_stack, board_size)){
+
+			// pop if member cannot be shifted
+			while( !shift(queen_stack.top(),board_size)){
+				queen test = queen_stack.top();
+				std::cout << "Popping queen at " << queen_stack.top().first << "," << queen_stack.top().second << "\n";
+				
+				queen_stack.pop();
+			} 
+		}		
 	}
 	
 	// output solutions
 	std::cout << "Final positions:\n";
 	for(int i = 0; i < board_size; ++i){
-		std::cout << queen_stack.top().first << "," << queen_stack.top().second << "\n";
+		for(int j = 1; j <= board_size; ++j){
+			
+			// output a 1 to indicate where the found solution was
+			if(queen_stack.top().second == j){
+				std::cout <<  " 1 ";
+			}
+			else {
+				std::cout << " 0 ";
+			}
+		}
+		std::cout << "\n";
 		queen_stack.pop();
 	}
 
